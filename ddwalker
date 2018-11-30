@@ -1,7 +1,7 @@
 #!/bin/bash
 # arument check
 if [ $# -ne 1 ]; then
-	echo "usage: ddwalker package-name"
+	echo "usage: ddwalker <package-name>"
 	exit 1
 fi
 # lets do the job
@@ -38,7 +38,7 @@ function walk() {
 }
 
 walk $1
-# show dependencies and save them to file if any
+# show dependencies and save them to the file if any
 if [ ${#deps[@]} -ne 0 ]; then
 	IFS=$'\n' deps=($(sort <<<"${deps[*]}"))
 	unset IFS
