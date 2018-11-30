@@ -1,5 +1,5 @@
 # ddwalker
-Debian packages dependency walker script. I will shows all dependencies of specified package and it's dependencies.
+Debian packages dependency walker script. It will shows all dependencies of specified package and it's dependencies.
 
 # Usage:
   ddwalker \<package-name\>
