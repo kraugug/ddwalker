@@ -1,0 +1,55 @@
+#!/bin/bash
+# arument check
+if [ $# -ne 1 ]; then
+	echo "usage: ddwalker package-name"
+	exit 1
+fi
+# lets do the job
+deps=()
+# walk function
+function walk() {
+	local package=$1
+	echo -n "Parsing ${package} ..."
+	package=${package//</ }
+	package=${package//>/ }
+	local depends=$(apt-cache depends ${package} | grep "Depends: " | tr -d "\t\r\n" |  tr -d "[:blank:]")
+	depends=${depends//|/;}
+	depends=${depends//PreDepends:/;}
+	depends=${depends//Depends:/;}
+	depends=${depends#";"}
+	# print array...
+	set -f # avoid globbing (expansion of *).
+	local array=(${depends//;/ })
+	local count="${#array[@]}"
+	if [ $count != "1" ]; then echo " ${count} dependencies"; else echo " ${count} dependency"; fi
+	for i in "${!array[@]}"
+	do
+		local exist=0
+		for j in "${!deps[@]}"
+		do
+			if [ "${deps[j]}" == "${array[i]}" ]; then exist=1; fi
+		done
+		if [ $exist -ne 1 ]; then
+			deps=(${deps[@]} ${array[i]})
+			walk ${array[i]}
+		fi
+	done
+	unset array
+}
+
+walk $1
+# show dependencies and save them to file if any
+if [ ${#deps[@]} -ne 0 ]; then
+	IFS=$'\n' deps=($(sort <<<"${deps[*]}"))
+	unset IFS
+	printf "\nDependencies:\n "
+	echo -n "" > "${1}.deps"
+	for i in "${!deps[@]}"
+	do
+		echo -n " ${deps[i]}"
+		echo ${deps[i]} >> "${1}.deps"
+	done
+	printf "\n\nTotal: ${#deps[@]}\n\n"
+fi
+unset deps
+# bye :)
