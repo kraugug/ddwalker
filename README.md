@@ -1,2 +1,2 @@
 # ddwalker
-Debian packages dependency walker.
+Debian packages dependency walker script.
